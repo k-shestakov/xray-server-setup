@@ -69,5 +69,6 @@ if ! systemctl is-active --quiet xray; then
 	exit 1
 fi
 
-name="u$(tr -dc a-z0-9 </dev/urandom | head -c 10)"
+name="u$(head -c 100 /dev/urandom | tr -dc 'a-z0-9' | head -c 10)"
+echo ""
 echo "vless://${uuid}@${ip}:${port}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${sn}&fp=${fp}&pbk=${pw}&sid=${sid}&type=tcp#${name}"
