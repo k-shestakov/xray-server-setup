@@ -27,4 +27,9 @@ sed -i -e 's/#Port 22/Port '"$port"'/g' -e 's/#PermitRootLogin yes/PermitRootLog
 systemctl restart sshd
 
 ip=$(curl -4 -s ifconfig.me)
+
+echo ""
 echo "ssh -p $port $user@$ip"
+echo ""
+
+bash <(curl -fsSL https://raw.githubusercontent.com/k-shestakov/xray-server-setup/refs/heads/main/xray-setup)
