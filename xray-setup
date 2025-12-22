@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+
+bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
+
+xcd=/usr/local/etc/xray
+mkdir -p $xcd 
+
+while :; do
+  port=$((RANDOM % (65535 - 49152 + 1) + 49152))
+  if ! lsof -i :"$port" >/dev/null 2>&1; then
+    break
+  fi
+done
+uuid=$(xray uuid)
+key_pair=$(xray x25519)
+pk=$(printf "%s\n" "$key_pair" | awk -F': ' '/^PrivateKey:/ {print $2}')
+pw=$(printf "%s\n" "$key_pair" | awk -F': ' '/^Password:/ {print $2}')
+sid=$(openssl rand -hex 8)
+ip=$(curl -4 -s ifconfig.me)
+sn="github.com"
+fp="safari"
+
+cat <<EOF> $xcd/config.json
+{
+    "log": {
+        "loglevel": "debug"
+    },
+    "inbounds": [
+        {
+            "port": $port, 
+            "protocol": "vless",
+            "settings": {
+                "clients": [
+                    {
+                        "id": "$uuid",
+                        "flow": "xtls-rprx-vision"
+                    }
+                ],
+                "decryption": "none"
+            },
+            "streamSettings": {
+                "network": "tcp",
+                "security": "reality",
+                "realitySettings": {
+                    "dest": "${sn}:443",
+                    "serverNames": [
+                        "$sn"
+                    ],
+                    "privateKey": "$pk",
+                    "shortIds": [
+                        "$sid"
+                    ]
+                }
+            },
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic"
+                ],
+                "routeOnly": true
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "tag": "direct"
+        }
+    ]
+}
+EOF
+
+cat $xcd/config.json | xray -test
+systemctl restart xray
+
+cat <<EOF> $xcd/config_client.json
+{
+    "log": {
+        "loglevel": "debug"
+    },
+    "inbounds": [
+        {
+            "listen": "127.0.0.1", 
+            "port": 10808, 
+            "protocol": "socks",
+            "settings": {
+                "udp": true
+            },
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic"
+                ],
+                "routeOnly": true
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "vless",
+            "settings": {
+                "vnext": [
+                    {
+                        "address": "$ip", 
+                        "port": $port, 
+                        "users": [
+                            {
+                                "id": "$uuid",
+                                "encryption": "none",
+                                "flow": "xtls-rprx-vision"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "tcp",
+                "security": "reality",
+                "realitySettings": {
+                    "fingerprint": "$fp", 
+                    "serverName": "$sn",
+                    "publicKey": "$pw",
+                    "spiderX": "",
+                    "shortId": "$sid"
+                }
+            },
+            "tag": "proxy"
+        }
+    ]
+}
+EOF
+
+cat $xcd/config_client.json | xray -test
