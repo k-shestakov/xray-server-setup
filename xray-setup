@@ -134,4 +134,6 @@ cat <<EOF> $xcd/config_client.json
 }
 EOF
 
-cat $xcd/config_client.json | xray -test
+vless_link="vless://${uuid}@${ip}:${port}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${sn}&fp=${fp}&pbk=${pw}&sid=${sid}&type=tcp#XrayServer"
+
+echo "$vless_link"
