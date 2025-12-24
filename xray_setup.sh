@@ -77,3 +77,5 @@ url="vless://${uuid}@${ip}:${port}?encryption=none&flow=xtls-rprx-vision&securit
 mkdir ~/xray
 echo ""
 echo $url | tee ~/xray/vless_url
+
+reboot
