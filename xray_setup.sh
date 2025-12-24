@@ -73,5 +73,7 @@ EOF
 systemctl restart xray
 
 name="u$(head -c 100 /dev/urandom | tr -dc 'a-z0-9' | head -c 10)"
+url="vless://${uuid}@${ip}:${port}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${sn}&fp=${fp}&pbk=${pw}&sid=${sid}&type=tcp#${name}"
+mkdir ~/xray
 echo ""
-echo "vless://${uuid}@${ip}:${port}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${sn}&fp=${fp}&pbk=${pw}&sid=${sid}&type=tcp#${name}"
+echo $url | tee ~/xray/vless_url
