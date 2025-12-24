@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+apt update && apt upgrade -y
+
+cat <<EOF > echo >> /etc/sysctl.conf
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+EOF
+sysctl -p
+
 bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install --without-geodata
 
 while :; do
@@ -63,11 +71,6 @@ cat <<EOF >/usr/local/etc/xray/config.json
 EOF
 
 systemctl restart xray
-if ! systemctl is-active --quiet xray; then
-	echo "Error: xray service failed to start"
-	journalctl -u xray -n 20
-	exit 1
-fi
 
 name="u$(head -c 100 /dev/urandom | tr -dc 'a-z0-9' | head -c 10)"
 echo ""
