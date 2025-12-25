@@ -50,23 +50,14 @@ cat <<EOF >/usr/local/etc/xray/config.json
                 "security": "reality",
                 "realitySettings": {
                     "dest": "${sn}:443",
-                    "serverNames": [
-                        "$sn"
-                    ],
+                    "serverNames": ["$sn"],
                     "privateKey": "$pk",
-                    "shortIds": [
-                        "$sid"
-                    ]
+                    "shortIds": ["$sid"]
                 }
             }
         }
     ],
-    "outbounds": [
-        {
-            "protocol": "freedom",
-            "tag": "direct"
-        }
-    ]
+    "outbounds": [{"protocol": "freedom"}]
 }
 EOF
 
