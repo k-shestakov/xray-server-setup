@@ -2,6 +2,7 @@
 set -euo pipefail
 
 apt update && apt upgrade -y
+apt install -y curl lsof openssl
 
 cat <<EOF > echo >> /etc/sysctl.conf
 net.core.default_qdisc = fq
