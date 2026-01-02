@@ -1,5 +1,7 @@
 Minimal server setup script with minimal Xray config (Debian-only):
 ```bash
+apt update && apt upgrade -y
+apt install -y curl lsof openssl
 bash <(curl -fsSL https://raw.githubusercontent.com/k-shestakov/xray-server-setup/refs/heads/main/server_setup.sh)
 ```
 
